@@ -2,7 +2,7 @@
 
 Een demonstratie applicatie die MQTT berichten ontvangt en automatisch PDF documenten genereert.
 
-## 📋 Overzicht
+## Overzicht
 
 Deze Flask applicatie biedt:
 - **Web interface** voor het versturen van MQTT berichten
@@ -10,7 +10,7 @@ Deze Flask applicatie biedt:
 - **PDF lijst en weergave** via web interface
 - **Real-time MQTT communicatie** via WebSocket
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Omgeving voorbereiden
 
@@ -72,7 +72,7 @@ python wsgi.py
 
 De applicatie is nu beschikbaar op: http://localhost:5555
 
-## 📁 Project Structuur
+## Project Structuur
 
 ```
 flask_demo_mqtt_pdf/
@@ -96,7 +96,7 @@ flask_demo_mqtt_pdf/
 └── README.md         # Deze documentatie
 ```
 
-## 🔧 API Endpoints
+## API Endpoints
 
 ### Web Interface
 - `GET /` - Hoofdpagina met MQTT interface
@@ -105,7 +105,7 @@ flask_demo_mqtt_pdf/
 - `GET /pdfs` - JSON lijst van alle PDF bestanden
 - `GET /pdfs/<name>` - Specifiek PDF bestand serveren
 
-## 🔄 Workflow
+## Workflow
 
 1. **Gebruiker verzendt bericht** via web interface
 2. **MQTT client publiceert** bericht naar broker
@@ -114,7 +114,7 @@ flask_demo_mqtt_pdf/
 5. **PDF wordt opgeslagen** in configured directory
 6. **Gebruiker kan PDF bekijken** via web interface
 
-## 🛠️ Development
+## Development
 
 ### Code Organisatie
 
@@ -138,7 +138,7 @@ Voor development testing:
 3. Verstuur testberichten via MQTT interface
 4. Controleer gegenereerde PDF's
 
-## 📦 Dependencies
+## Dependencies
 
 Zie `requirements.txt` voor volledige lijst:
 - **Flask**: Web framework
@@ -146,20 +146,8 @@ Zie `requirements.txt` voor volledige lijst:
 - **paho-mqtt**: MQTT client library
 - **reportlab**: PDF generatie
 
-## 🚀 Production Deployment
 
-Voor production gebruik een WSGI server:
-
-```bash
-# Met gunicorn
-pip install gunicorn
-gunicorn wsgi:app
-
-# Met configuratie
-gunicorn --bind 0.0.0.0:8000 --workers 4 wsgi:app
-```
-
-## 🔒 Beveiliging
+## Beveiliging
 
 - Verander `SECRET_KEY` in production
 - Configureer MQTT broker authenticatie
@@ -167,10 +155,10 @@ gunicorn --bind 0.0.0.0:8000 --workers 4 wsgi:app
 - Gebruik HTTPS in production
 - Monitor disk space voor PDF directory
 
-## 📝 Licentie
+## Licentie
 
-Demo project - vrij te gebruiken voor educatieve doeleinden.
+Vrij te gebruiken voor educatieve doeleinden.
 
-## 👥 Auteurs
+## Auteurs
 
-Demo Project - 15 oktober 2025
+Frederick Roegiers
