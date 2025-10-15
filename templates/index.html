@@ -1,0 +1,133 @@
+<!doctype html>
+<!-- 
+Flask MQTT PDF Demo - Hoofdpagina Template
+Biedt een web interface voor:
+- MQTT berichten versturen via WebSocket
+- Real-time verbindingsstatus
+- Lijst van gegenereerde PDF's bekijken
+- Direct PDF's openen in browser
+
+Template Variables:
+- mqtt_topic: MQTT topic naam
+- mqtt_port: WebSocket poort voor MQTT
+- mqtt_host: MQTT broker hostname
+-->
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <title>MQTT + PDF Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Inline CSS voor eenvoudige styling zonder externe dependencies -->
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;max-width:720px;margin:2rem auto}
+    textarea{width:100%;min-height:6rem}
+    button{padding:.6rem 1rem;margin:.5rem 0}
+    ul{padding-left:1rem}
+    li{margin:.25rem 0}
+    code{background:#f2f2f2;padding:.1rem .3rem;border-radius:.2rem}
+  </style>
+</head>
+<body>
+  <h1>MQTT publish → PDF bij ontvangst</h1>
+
+  <!-- MQTT Bericht Verstuur Sectie -->
+  <section>
+    <h2>Bericht publiceren</h2>
+    <p>Topic: <code id="topic"></code></p>
+    <textarea id="msg" placeholder="Schrijf je bericht..."></textarea>
+    <br>
+    <button id="send">Verstuur via MQTT</button>
+    <p id="status">Status: nog niet verbonden</p>
+  </section>
+
+  <!-- PDF Lijst Sectie -->
+  <section>
+    <h2>Gegenereerde PDF's</h2>
+    <button id="refresh">Verversen</button>
+    <ul id="list"></ul>
+  </section>
+
+  <!-- MQTT.js library van CDN voor WebSocket MQTT communicatie -->
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <script>
+    /*
+     * MQTT Client Configuratie en Event Handling
+     * 
+     * Functionaliteit:
+     * - WebSocket verbinding met MQTT broker
+     * - Berichten versturen naar geconfigureerde topic
+     * - Real-time verbindingsstatus updates
+     * - PDF lijst ophalen en bijwerken
+     */
+    
+    // MQTT configuratie vanuit Flask template variables
+    const TOPIC = "{{ mqtt_topic }}";
+    const WS_PORT = {{ mqtt_port }};
+    const HOST = "{{ mqtt_host }}";
+    const brokerHost = HOST || window.location.hostname;
+    const url = `ws://${brokerHost}:${WS_PORT}`;
+
+    // Update UI met topic naam
+    document.getElementById('topic').textContent = TOPIC;
+
+    // MQTT client initialisatie met WebSocket verbinding
+    const client = mqtt.connect(url, {
+      keepalive: 30,           // Heartbeat interval in seconden
+      reconnectPeriod: 2000,   // Auto-reconnect interval in ms
+      connectTimeout: 8000,    // Verbinding timeout in ms
+    });
+
+    // MQTT Event Handlers - Update UI status
+    const status = document.getElementById('status');
+    client.on('connect', () => { status.textContent = 'Status: verbonden'; });
+    client.on('reconnect', () => { status.textContent = 'Status: opnieuw verbinden...'; });
+    client.on('error', (err) => { status.textContent = 'Status: fout - ' + err.message; });
+
+    /*
+     * Bericht Verstuur Functionaliteit
+     * Publiceert textarea inhoud naar MQTT topic
+     */
+    document.getElementById('send').addEventListener('click', () => {
+      const payload = document.getElementById('msg').value || '';
+      client.publish(TOPIC, payload, { qos: 0, retain: false });
+      status.textContent = 'Status: bericht gepubliceerd';
+    });
+
+    /*
+     * PDF Lijst Management
+     * Haalt lijst van gegenereerde PDF's op van /pdfs API endpoint
+     * en toont deze als klikbare links
+     */
+    async function loadPdfs() {
+      try {
+        const res = await fetch('/pdfs');
+        const data = await res.json();
+        const ul = document.getElementById('list');
+        
+        // Clear bestaande lijst
+        ul.innerHTML = '';
+        
+        // Voeg elke PDF toe als link
+        data.files.forEach(name => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = `/pdfs/${encodeURIComponent(name)}`;
+          a.textContent = name;
+          a.target = '_blank';  // Open PDF in nieuwe tab
+          li.appendChild(a);
+          ul.appendChild(li);
+        });
+      } catch (error) {
+        console.error('Fout bij laden PDF lijst:', error);
+        status.textContent = 'Status: fout bij laden PDF lijst';
+      }
+    }
+    
+    // Event handlers voor PDF lijst
+    document.getElementById('refresh').addEventListener('click', loadPdfs);
+    
+    // Laad PDF lijst bij pagina laden
+    loadPdfs();
+  </script>
+</body>
+</html>
